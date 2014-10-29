@@ -1,0 +1,11 @@
+{
+    "version": "0.0.0",
+    "summary": "Keyboard handling for elm optimized for text entry",
+    "description": "Keyboard handling for elm optimized for text entry",
+    "license": "MIT",
+    "exposed-modules": ["Keys"],
+    "native-modules": ["Native.Keys"],
+    "elm-version": "0.13.0",
+    "dependencies": {},
+    "repository": "https://github.com/avh4/elm-keys.git"
+}
