@@ -20,7 +20,8 @@ Elm.Native.Keys.make = function(elm) {
   };
 
   var modKeys = {
-    '91': 'meta'
+    '91': 'meta',
+    '93': 'meta'
   };
 
   var downMods = {};
