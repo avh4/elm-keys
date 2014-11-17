@@ -56,11 +56,9 @@ Elm.Native.Keys.make = function(elm) {
     }
   }
 
-  document.addEventListener("visibilitychange", function() {
-    if (document.hidden) {
-      downMods = {};
-    }
-  });
+  window.onblur = function() {
+    downMods = {};
+  };
 
   return elm.Native.Keys.values = {
     pressesIn: pressesIn,
