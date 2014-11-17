@@ -10,6 +10,7 @@ Elm.Native.Keys.make = function(elm) {
   var pressesIn = Signal.constant("");
   var downsIn = Signal.constant(0);
   var metaIn = Signal.constant(0);
+  var shiftIn = Signal.constant(0);
 
   var specialKeys = {
     '8': 'backspace',
@@ -20,6 +21,9 @@ Elm.Native.Keys.make = function(elm) {
   };
 
   var modKeys = {
+    '16': 'shift',
+    '17': 'ctrl',
+    '18': 'alt',
     '91': 'meta',
     '93': 'meta'
   };
@@ -35,8 +39,13 @@ Elm.Native.Keys.make = function(elm) {
       elm.notify(metaIn.id, e.keyCode);
       e.preventDefault();
     } else if (specialKeys[e.keyCode.toString()]) {
-      elm.notify(downsIn.id, e.keyCode)
-      e.preventDefault();
+      if (downMods.shift) {
+        elm.notify(shiftIn.id, e.keyCode);
+        e.preventDefault();
+      } else {
+        elm.notify(downsIn.id, e.keyCode)
+        e.preventDefault();
+      }
     }
   }
 
@@ -63,6 +72,7 @@ Elm.Native.Keys.make = function(elm) {
   return elm.Native.Keys.values = {
     pressesIn: pressesIn,
     downsIn: downsIn,
-    metaIn: metaIn
+    metaIn: metaIn,
+    shiftIn: shiftIn
   };
 };
