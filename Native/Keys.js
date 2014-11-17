@@ -56,6 +56,12 @@ Elm.Native.Keys.make = function(elm) {
     }
   }
 
+  document.addEventListener("visibilitychange", function() {
+    if (document.hidden) {
+      downMods = {};
+    }
+  });
+
   return elm.Native.Keys.values = {
     pressesIn: pressesIn,
     downsIn: downsIn,
