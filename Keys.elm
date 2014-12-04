@@ -2,13 +2,13 @@ module Keys (Key(..), KeyCombo(..), lastPressed) where
 
 import Signal
 import Native.Keys
-import Either
+import Result
 
-data Key
+type Key
   = Enter | Backspace
   | Left | Right | Up | Down
 
-data KeyCombo
+type KeyCombo
   = Single Key
   | Character String
   | Command Key
@@ -29,43 +29,49 @@ fromDowns code = case code of
   38 -> Single Up
   39 -> Single Right
   40 -> Single Down
-  _ -> Unrecognized (show code)
+  _ -> Unrecognized (toString code)
 
-fromCode : Int -> Maybe (Either.Either Key String)
-fromCode code = case code of
-  37 -> Just (Either.Left Left)
-  38 -> Just (Either.Left Up)
-  39 -> Just (Either.Left Right)
-  40 -> Just (Either.Left Down)
-  49 -> Just (Either.Right "1")
-  50 -> Just (Either.Right "2")
-  51 -> Just (Either.Right "3")
-  52 -> Just (Either.Right "4")
-  53 -> Just (Either.Right "5")
-  54 -> Just (Either.Right "6")
-  55 -> Just (Either.Right "7")
-  65 -> Just (Either.Right "a")
-  68 -> Just (Either.Right "d")
-  77 -> Just (Either.Right "m")
-  80 -> Just (Either.Right "p")
+keyFromCode : Int -> Maybe Key
+keyFromCode code = case code of
+  37 -> Just Left
+  38 -> Just Up
+  39 -> Just Right
+  40 -> Just Down
+  _ -> Nothing
+
+charFromCode : Int -> Maybe String
+charFromCode code = case code of
+  49 -> Just "1"
+  50 -> Just "2"
+  51 -> Just "3"
+  52 -> Just "4"
+  53 -> Just "5"
+  54 -> Just "6"
+  55 -> Just "7"
+  65 -> Just "a"
+  68 -> Just "d"
+  77 -> Just "m"
+  80 -> Just "p"
   _ -> Nothing
 
 fromMeta : Int -> KeyCombo
-fromMeta code = case fromCode code of
-  Just (Either.Left key) -> Command key
-  Just (Either.Right char) -> CommandCharacter char
-  Nothing -> Unrecognized ("Meta-" ++ show code)
+fromMeta code = case charFromCode code of
+  Just char -> CommandCharacter char
+  Nothing -> case keyFromCode code of
+    Just key -> Command key
+    Nothing -> Unrecognized ("Meta-" ++ toString code)
 
 fromShift : Int -> KeyCombo
-fromShift code = case fromCode code of
-  Just (Either.Left key) -> Shift key
-  Just (Either.Right char) -> Unrecognized ("Shift-" ++ show code ++ " shft-down event for a normal key?!") -- TODO: should never happen
-  Nothing -> Unrecognized ("Shift-" ++ show code)
+fromShift code = case keyFromCode code of
+  Just key -> Shift key
+  Nothing -> case charFromCode code of
+    Just _ -> Unrecognized ("Shift-" ++ toString code ++ " shft-down event for a normal key?!") -- TODO: should never happen
+    Nothing -> Unrecognized ("Shift-" ++ toString code)
 
 lastPressed : Signal KeyCombo
-lastPressed = Signal.merges
-  [ fromPresses <~ Native.Keys.pressesIn
-  , fromDowns <~ Native.Keys.downsIn
-  , fromMeta <~ Native.Keys.metaIn
-  , fromShift <~ Native.Keys.shiftIn
+lastPressed = Signal.mergeMany
+  [ Signal.map fromPresses Native.Keys.pressesIn
+  , Signal.map fromDowns Native.Keys.downsIn
+  , Signal.map fromMeta Native.Keys.metaIn
+  , Signal.map fromShift Native.Keys.shiftIn
   ]
