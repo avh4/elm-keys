@@ -1,4 +1,4 @@
-module Keys (Key(..), KeyCombo(..), lastPressed) where
+module Keys (Key(..), KeyCombo(..), lastPressed, pastes) where
 
 import Signal
 import Native.Keys
@@ -75,3 +75,6 @@ lastPressed = Signal.mergeMany
   , Signal.map fromMeta Native.Keys.metaIn
   , Signal.map fromShift Native.Keys.shiftIn
   ]
+
+pastes : Signal String
+pastes = Native.Keys.pasteIn
