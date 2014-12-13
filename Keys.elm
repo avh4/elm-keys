@@ -14,6 +14,7 @@ type KeyCombo
   | Command Key
   | CommandCharacter String
   | Shift Key
+  | CommandShift Key
   | Unrecognized String
 
 fromPresses : String -> KeyCombo
@@ -21,18 +22,10 @@ fromPresses string = case string of
   "\r" -> Single Enter
   _ -> Character string
 
-fromDowns : Int -> KeyCombo
-fromDowns code = case code of
-  8 ->  Single Backspace
-  13 -> Single Enter
-  37 -> Single Left
-  38 -> Single Up
-  39 -> Single Right
-  40 -> Single Down
-  _ -> Unrecognized (toString code)
-
 keyFromCode : Int -> Maybe Key
 keyFromCode code = case code of
+  8 -> Just Backspace
+  13 -> Just Enter
   37 -> Just Left
   38 -> Just Up
   39 -> Just Right
@@ -61,19 +54,24 @@ fromMeta code = case charFromCode code of
     Just key -> Command key
     Nothing -> Unrecognized ("Meta-" ++ toString code)
 
-fromShift : Int -> KeyCombo
-fromShift code = case keyFromCode code of
-  Just key -> Shift key
-  Nothing -> case charFromCode code of
-    Just _ -> Unrecognized ("Shift-" ++ toString code ++ " shft-down event for a normal key?!") -- TODO: should never happen
-    Nothing -> Unrecognized ("Shift-" ++ toString code)
+fromCombo : (Bool, Bool, Int) -> KeyCombo
+fromCombo (meta, shift, code) = case keyFromCode code of
+  Just key -> case (meta, shift) of
+    (True, True) -> CommandShift key
+    (True, False) -> Command key
+    (False, True) -> Shift key
+    (False, False) -> Single key
+  Nothing -> case (meta, shift) of
+    (True, True) -> Unrecognized ("Meta-Shift-" ++ toString code)
+    (True, False) -> Unrecognized ("Meta-" ++ toString code)
+    (False, True) -> Unrecognized ("Shift-" ++ toString code)
+    (False, False) -> Unrecognized ("" ++ toString code)
 
 lastPressed : Signal KeyCombo
 lastPressed = Signal.mergeMany
   [ Signal.map fromPresses Native.Keys.pressesIn
-  , Signal.map fromDowns Native.Keys.downsIn
+  , Signal.map fromCombo Native.Keys.comboIn
   , Signal.map fromMeta Native.Keys.metaIn
-  , Signal.map fromShift Native.Keys.shiftIn
   ]
 
 pastes : Signal String

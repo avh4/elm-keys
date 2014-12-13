@@ -8,10 +8,9 @@ Elm.Native.Keys.make = function(elm) {
   var Signal = Elm.Native.Signal.make(elm);
 
   var pressesIn = Signal.constant("");
-  var downsIn = Signal.constant(0);
   var metaIn = Signal.constant(0);
-  var shiftIn = Signal.constant(0);
   var pasteIn = Signal.constant("");
+  var comboIn = Signal.constant({ ctor: "_Tuple3", _0: false, _1: false, _2: 0});
 
   var specialKeys = {
     '8': 'backspace',
@@ -60,17 +59,12 @@ Elm.Native.Keys.make = function(elm) {
     } else if (mod = modKeys[e.keyCode.toString()]) {
       downMods[mod] = true;
       e.preventDefault();
+    } else if (specialKeys[e.keyCode.toString()]) {
+      elm.notify(comboIn.id, { ctor:"_Tuple3", _0: !!downMods.meta, _1: !!downMods.shift, _2: e.keyCode });
+      e.preventDefault();
     } else if (downMods.meta) {
       elm.notify(metaIn.id, e.keyCode);
       e.preventDefault();
-    } else if (specialKeys[e.keyCode.toString()]) {
-      if (downMods.shift) {
-        elm.notify(shiftIn.id, e.keyCode);
-        e.preventDefault();
-      } else {
-        elm.notify(downsIn.id, e.keyCode)
-        e.preventDefault();
-      }
     }
   }
 
@@ -96,9 +90,8 @@ Elm.Native.Keys.make = function(elm) {
 
   return elm.Native.Keys.values = {
     pressesIn: pressesIn,
-    downsIn: downsIn,
     metaIn: metaIn,
-    shiftIn: shiftIn,
-    pasteIn: pasteIn
+    pasteIn: pasteIn,
+    comboIn: comboIn
   };
 };
