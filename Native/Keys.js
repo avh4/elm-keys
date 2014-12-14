@@ -10,7 +10,7 @@ Elm.Native.Keys.make = function(elm) {
   var pressesIn = Signal.constant("");
   var metaIn = Signal.constant(0);
   var pasteIn = Signal.constant("");
-  var comboIn = Signal.constant({ ctor: "_Tuple3", _0: false, _1: false, _2: 0});
+  var comboIn = Signal.constant({ ctor: "_Tuple4", _0: false, _1: false, _2: false, _3: 0});
 
   var specialKeys = {
     '8': 'backspace',
@@ -60,7 +60,7 @@ Elm.Native.Keys.make = function(elm) {
       downMods[mod] = true;
       e.preventDefault();
     } else if (specialKeys[e.keyCode.toString()]) {
-      elm.notify(comboIn.id, { ctor:"_Tuple3", _0: !!downMods.meta, _1: !!downMods.shift, _2: e.keyCode });
+      elm.notify(comboIn.id, { ctor:"_Tuple4", _0: !!downMods.meta, _1: !!downMods.shift, _2: !!downMods.alt, _3: e.keyCode });
       e.preventDefault();
     } else if (downMods.meta) {
       elm.notify(metaIn.id, e.keyCode);

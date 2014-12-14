@@ -15,6 +15,14 @@ type KeyCombo
   | CommandCharacter String
   | Shift Key
   | CommandShift Key
+  | Alt Key
+  | AltShift Key
+  | Magic Key
+  | MagicShift Key
+  | CommandControl Key
+  | CommandControlShift Key
+  | Smash Key
+  | SmashShift Key
   | Unrecognized String
 
 fromPresses : String -> KeyCombo
@@ -54,18 +62,26 @@ fromMeta code = case charFromCode code of
     Just key -> Command key
     Nothing -> Unrecognized ("Meta-" ++ toString code)
 
-fromCombo : (Bool, Bool, Int) -> KeyCombo
-fromCombo (meta, shift, code) = case keyFromCode code of
-  Just key -> case (meta, shift) of
-    (True, True) -> CommandShift key
-    (True, False) -> Command key
-    (False, True) -> Shift key
-    (False, False) -> Single key
-  Nothing -> case (meta, shift) of
-    (True, True) -> Unrecognized ("Meta-Shift-" ++ toString code)
-    (True, False) -> Unrecognized ("Meta-" ++ toString code)
-    (False, True) -> Unrecognized ("Shift-" ++ toString code)
-    (False, False) -> Unrecognized ("" ++ toString code)
+fromCombo : (Bool, Bool, Bool, Int) -> KeyCombo
+fromCombo (meta, shift, alt, code) = case keyFromCode code of
+  Just key -> case (meta, shift, alt) of
+    (True, True, True) -> MagicShift key
+    (True, False, True) -> Magic key
+    (False, True, True) -> AltShift key
+    (False, False, True) -> Alt key
+    (True, True, False) -> CommandShift key
+    (True, False, False) -> Command key
+    (False, True, False) -> Shift key
+    (False, False, False) -> Single key
+  Nothing -> case (meta, shift, alt) of
+    (True, True, True) -> Unrecognized ("Meta-Alt-Shift-" ++ toString code)
+    (True, False, True) -> Unrecognized ("Meta-Alt-" ++ toString code)
+    (False, True, True) -> Unrecognized ("Alt-Shift-" ++ toString code)
+    (False, False, True) -> Unrecognized ("Alt-" ++ toString code)
+    (True, True, False) -> Unrecognized ("Meta-Shift-" ++ toString code)
+    (True, False, False) -> Unrecognized ("Meta-" ++ toString code)
+    (False, True, False) -> Unrecognized ("Shift-" ++ toString code)
+    (False, False, False) -> Unrecognized ("" ++ toString code)
 
 lastPressed : Signal KeyCombo
 lastPressed = Signal.mergeMany
