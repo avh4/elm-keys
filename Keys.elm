@@ -50,6 +50,7 @@ charFromCode code = case code of
   54 -> Just "6"
   55 -> Just "7"
   65 -> Just "a"
+  66 -> Just "b"
   68 -> Just "d"
   77 -> Just "m"
   80 -> Just "p"
